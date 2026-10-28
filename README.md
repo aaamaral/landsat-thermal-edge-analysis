@@ -266,7 +266,7 @@ following the workflow above.
 
 If you use this code, please cite the article above.
 
-Repository URL: TO BE ADDED AFTER PUBLIC RELEASE
+Repository URL: https://github.com/aaamaral/landsat-thermal-edge-analysis
 
 ## License
 
