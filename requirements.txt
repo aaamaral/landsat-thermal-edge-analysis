@@ -1,0 +1,17 @@
+# Python 3.12 (tested with 3.12.1). Versions are those installed in the environment used for the
+# analyses reported in the article; other versions may work but were not tested.
+numpy==1.26.4
+pandas==3.0.1
+scipy==1.17.1
+pyarrow==21.0.0
+duckdb==1.5.4
+statsmodels==0.14.5
+patsy==1.0.2
+rasterio==1.4.3
+pyproj==3.7.2
+shapely==2.1.0
+geopandas==1.1.2
+pyogrio==0.11.1
+joblib==1.4.2
+matplotlib==3.10.8
+earthengine-api==1.5.3
