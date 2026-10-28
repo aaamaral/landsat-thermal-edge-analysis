@@ -26,7 +26,7 @@ table and no aggregated database is distributed (see [Data availability](#data-a
 ## Article
 
 *Edge-associated thermal patterns in Landsat surface temperature: magnitude, transition depth and
-directional contrasts across land-cover classes.* Adriano Araújo do Amaral. Manuscript under review.
+directional contrasts across land-cover classes in Paraná, southern Brazil.* Adriano Araújo do Amaral. Manuscript under review.
 
 ## Requirements
 
