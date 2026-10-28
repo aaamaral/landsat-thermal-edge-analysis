@@ -33,7 +33,7 @@ directional contrasts across land-cover classes.* Adriano Araújo do Amaral. Man
 - Python 3.12 (tested with Python 3.12.1).
 - The packages in `requirements.txt`, with the versions used in the study: NumPy, pandas, SciPy,
   PyArrow, DuckDB, statsmodels, patsy, rasterio, pyproj, Shapely, GeoPandas, pyogrio, joblib,
-  Matplotlib and the Earth Engine Python API (`earthengine-api`).
+  Matplotlib, Cartopy and pyshp (map figures) and the Earth Engine Python API (`earthengine-api`).
 - GDAL, PROJ and GEOS are used through rasterio, pyogrio, pyproj and Shapely. The binary wheels
   installed by `pip` include them, so no separate system installation is needed on Windows, macOS
   or Linux x86-64. Conda-forge builds also work.
@@ -81,6 +81,10 @@ revision/04_landscape/         landscape metrics of the polygons
 revision/05_covariates/        SRTM topography and ERA5-Land meteorology (EE)
 revision/08_statistics/        estimates, sensitivity analyses, inference and models
 revision/09_figures/           figures
+    cartography.py             map projection, boundaries, graticule, north arrow, scale bar
+    fig_study_area.py          Figure 2, location of the study area
+    fig_results.py             Figures 3-7 and S2 (Figure 3: spatial coverage map)
+    fig_conceptual.py          Figure 1;  fig_spatial_examples.py: Figure S3
 revision/10_tables/            supplementary tables
 tests/test_synthetic.py        minimal tests on synthetic data
 ```
@@ -98,11 +102,13 @@ the relative layout must be kept. Intermediate data are written to `revision/dat
 | ERA5-Land hourly, `ECMWF/ERA5_LAND/HOURLY` | Google Earth Engine | Scene-level meteorological covariates |
 | SRTM 1 arc-second, `USGS/SRTMGL1_003` | Google Earth Engine | Elevation, slope and aspect |
 | State boundary of Paraná | Supplied by the user (for example, the official IBGE state boundary) | Extent of the scene search and clip of the reference grid |
+| IBGE 2022 state boundaries, `BR_UF_2022` (SIRGAS 2000) | Downloaded by the user from geoftp.ibge.gov.br (see [Map figures](#map-figures-figures-2-and-3)) | Figures 2 and 3 |
+| Natural Earth 1:10m Admin 0 countries (public domain) | Downloaded automatically by Cartopy on first use | International boundaries in Figure 2 |
 
 These datasets are not redistributed here. They remain subject to the licences and terms of use of
 their providers (USGS/NASA for Landsat and SRTM, the MapBiomas Project, ECMWF/Copernicus for
-ERA5-Land, IBGE or the provider of the boundary file) and of Google Earth Engine. More details are
-in `data/README.md`.
+ERA5-Land, IBGE or the provider of the boundary file; Natural Earth is in the public domain) and of
+Google Earth Engine. More details are in `data/README.md`.
 
 ## Environment variables
 
@@ -110,6 +116,7 @@ in `data/README.md`.
 |---|---|---|
 | `EE_PROJECT` | Google Cloud project registered for Earth Engine | every step marked **EE** |
 | `PARANA_GPKG` | path to the Paraná boundary (GeoPackage or another vector format readable by GeoPandas). Default: `data/external/PARANA.gpkg` | `prepare_reference_grid.py`, `build_scene_manifest.py` |
+| `IBGE_UF` | path to the IBGE `BR_UF_2022.zip` file (optional). Default: `data/external/ibge/BR_UF_2022.zip` | `fig_study_area.py`, `fig_results.py` (Figure 3) |
 
 ```bash
 earthengine authenticate                     # once per machine; stores credentials outside the repository
@@ -169,7 +176,7 @@ tens of GB of disk.
 | 5. Covariates | `python revision/05_covariates/build_covariates.py dem`, then `demzones`, then `era5` | topographic and ERA5-Land tables | **EE** |
 | 6. Landscape metrics | `python revision/04_landscape/landscape_metrics_revision.py --year {year}` for each year | `revision/data/inputs/landscape_{year}.csv` | **heavy** (local) |
 | 7. Estimates, sensitivity analyses, inference and models | `bash revision/08_statistics/rerun_all.sh` (runs the scripts below in order) | `revision/outputs/full/*.csv` | **heavy** (local; reads the whole database, 1,000 bootstrap replicates) |
-| 8. Figures | `python revision/09_figures/fig_results.py`, `fig_conceptual.py`, `fig_spatial_examples.py` | `revision/outputs/figures/` | `fig_spatial_examples.py` uses **EE** for one scene |
+| 8. Figures | `python revision/09_figures/fig_conceptual.py`, `fig_study_area.py`, `fig_results.py`, `fig_spatial_examples.py` | `revision/outputs/figures/` | `fig_spatial_examples.py` uses **EE** for one scene; the map figures need the IBGE file (see [Map figures](#map-figures-figures-2-and-3)) |
 | 9. Supplementary tables | `python revision/10_tables/supplementary_tables.py` | `revision/outputs/tables/` | light |
 
 `revision/02_edge_aggregation/rebuild_year_c10.sh <year>` runs steps 1–4 and the covariates for one
@@ -229,7 +236,40 @@ described in the Supplementary Material.
 | Map–scene date, season, class stability and edge orientation | `revision/01_data_preparation/class_stability.py`, `revision/08_statistics/map_date_sensitivity.py`, `orientation.py` |
 | Database audit, support and retention | `revision/03_database_audit/audit_database.py` |
 | Tables | `audit_database.py`, `core_estimates.py`, `covariate_models.py`, `revision/10_tables/supplementary_tables.py` |
-| Figures | `revision/09_figures/fig_conceptual.py`, `fig_results.py`, `fig_spatial_examples.py`; Fig. S1 from `supplementary_tables.py` |
+| Figures | Fig. 1 `revision/09_figures/fig_conceptual.py`; Fig. 2 `fig_study_area.py`; Figs. 3–7 and S2 `fig_results.py`; Fig. S3 `fig_spatial_examples.py`; Fig. S1 `supplementary_tables.py` |
+
+## Map figures (Figures 2 and 3)
+
+Both maps use the Albers equal-area projection of the analysis grid (IBGE parameters for Brazil,
+GRS 1980; see [Reproducing the reference grid](#reproducing-the-reference-grid)), a graticule in
+degrees, a north arrow and a scale bar whose length is calibrated with geodesic distances.
+
+**Boundary data.** Brazilian state boundaries come from the official IBGE 2022 territorial grid,
+dataset `BR_UF_2022` (SIRGAS 2000), published at geoftp.ibge.gov.br. Download the zip once and keep
+it compressed:
+
+```bash
+mkdir -p data/external/ibge
+curl -o data/external/ibge/BR_UF_2022.zip \
+  https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_UF_2022.zip
+```
+
+The scripts read `data/external/ibge/BR_UF_2022.zip`, or the path in the environment variable
+`IBGE_UF`. The file is git-ignored and not redistributed here. International boundaries come from
+Natural Earth 1:10m Admin 0 countries (public domain), which Cartopy downloads and caches
+automatically on first use (internet access needed once).
+
+**Commands.**
+
+| Figure | Command | Inputs |
+|---|---|---|
+| Figure 2, location of the study area | `python revision/09_figures/fig_study_area.py` | IBGE `BR_UF_2022`, Natural Earth |
+| Figure 3, spatial coverage | `python revision/09_figures/fig_results.py` (also draws Figures 4–7 and S2) | `revision/outputs/audit/coverage_grid.csv` from `audit_database.py` (step 5), IBGE `BR_UF_2022` |
+
+Outputs are written to `revision/outputs/figures/` (`fig02_study_area`, `fig03_coverage`, PNG and
+PDF). In Figure 3 each square is one of the real 10 km cells of the coverage grid of the analysis
+(cell index × 10 km in the analysis CRS), and its colour is the number of usable polygons read from
+the pipeline output; no value is interpolated or recomputed for display.
 
 ## Tests
 

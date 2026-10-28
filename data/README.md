@@ -20,6 +20,13 @@ remain subject to the licences and terms of use of their providers and of Google
 | File | Location | Notes |
 |---|---|---|
 | State boundary of Paraná | path in the environment variable `PARANA_GPKG`, or `data/external/PARANA.gpkg` | Any polygon of the state in a vector format readable by GeoPandas, with a defined CRS (for example, the official IBGE state boundary). Used by `scripts/prepare_reference_grid.py` and `scripts/build_scene_manifest.py`. |
+| IBGE 2022 state boundaries, `BR_UF_2022.zip` (SIRGAS 2000) | `data/external/ibge/BR_UF_2022.zip`, or the path in `IBGE_UF` | Official IBGE territorial grid, from https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_UF_2022.zip. Keep it zipped. Used only by the map figures (Figures 2 and 3). |
+
+## Downloaded automatically
+
+| Dataset | Notes |
+|---|---|
+| Natural Earth 1:10m Admin 0 countries | Public domain. Downloaded and cached by Cartopy on first use; international boundaries in Figure 2. |
 
 ## Built by the code
 

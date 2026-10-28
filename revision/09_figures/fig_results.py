@@ -2,12 +2,12 @@
 
   python fig_results.py [--src full]
 
-fig02_coverage      usable polygons per 10 km cell (W = 150 m), one panel per year_sensor
-fig03_profiles      TST contrast vs distance to the mapped edge (W = 300 m, 95 % CI), per class
-fig04_multiscale    DET vs analysis window (90-300 m) and vs edge exclusion (0-90 m)
-fig05_dtec          DTEC(A <- B) heatmap (focal x neighbour) per year_sensor, diverging, cells
+fig03_coverage      usable polygons per 10 km cell (W = 150 m), one map panel per year_sensor
+fig04_profiles      TST contrast vs distance to the mapped edge (W = 300 m, 95 % CI), per class
+fig05_multiscale    DET vs analysis window (90-300 m) and vs edge exclusion (0-90 m)
+fig06_dtec          DTEC(A <- B) heatmap (focal x neighbour) per year_sensor, diverging, cells
                     without enough interfaces left blank and marked
-fig06_asymmetry     DTEC(A <- B) - DTEC(B <- A), upper triangle, CI excluding 0 marked
+fig07_asymmetry     DTEC(A <- B) - DTEC(B <- A), upper triangle, CI excluding 0 marked
 Year_sensor conditions are separate panels/series, never joined as a trend.
 Colours: validated categorical slots 1-3 (dataviz reference palette), each also with its own
 marker and line style (the third slot is < 3:1 on the surface -> secondary encoding).
@@ -65,24 +65,49 @@ def year_legend(fig, ncol=3, y=1.02):
 
 
 def fig_coverage(src, out):
+    """Usable polygons per 10 km cell, drawn as the 10 km cells themselves on the analysis CRS,
+    with the Paraná boundary, a shared graticule, one north arrow and one scale bar (the three
+    panels have the same extent, projection and orientation)."""
+    import cartopy.crs as ccrs
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import cartography as carto
+
     g = pd.read_csv(src.parent / "audit" / "coverage_grid.csv")
-    fig, axs = plt.subplots(1, 3, figsize=(7.2, 2.6), sharex=True, sharey=True)
+    pr = carto.states().query("SIGLA_UF == 'PR'")
     vmax = np.nanpercentile(g["polygons_usable"], 98)
-    for ax, (y, (lab, *_)) in zip(axs, YS.items()):
+    gx0, gy0 = g["gx"].min(), g["gy"].min()
+    nx, ny = g["gx"].max() - gx0 + 1, g["gy"].max() - gy0 + 1
+    cell = 10_000.0  # cell (gx, gy) spans [gx, gx + 1) x [gy, gy + 1) x 10 km
+    assert np.allclose(g["x_center"], g["gx"] * cell + cell / 2)
+    assert np.allclose(g["y_center"], g["gy"] * cell + cell / 2)
+    ext = [gx0 * cell, (gx0 + nx) * cell, gy0 * cell, (gy0 + ny) * cell]
+    fig = plt.figure(figsize=(7.2, 2.9))
+    axs = [fig.add_axes([0.035 + i * 0.295, 0.13, 0.285, 0.72], projection=carto.ALBERS)
+           for i in range(3)]
+    for i, (ax, (y, (lab, *_))) in enumerate(zip(axs, YS.items())):
         d = g[g["year"] == y]
-        sc = ax.scatter(d["x_center"] / 1e3, d["y_center"] / 1e3, c=d["polygons_usable"], s=3.2,
-                        marker="s", cmap=SEQ, vmin=0, vmax=vmax, linewidths=0)
-        ax.set_title(f"{lab}\n(n = {int(d['polygons_usable'].sum()):,} polygons)", loc="left", fontsize=8)
-        ax.set_aspect("equal")
-        ax.grid(False)
-        ax.set_xticks([])
-        ax.set_yticks([])
+        arr = np.full((ny, nx), np.nan)
+        arr[(d["gy"] - gy0).to_numpy(), (d["gx"] - gx0).to_numpy()] = d["polygons_usable"].to_numpy()
+        ax.set_extent([4.93e6, 5.62e6, 8.28e6, 8.83e6], crs=carto.ALBERS)
+        im = ax.imshow(arr, origin="lower", extent=ext, transform=carto.ALBERS, cmap=SEQ,
+                       vmin=0, vmax=vmax, interpolation="nearest", zorder=2)
+        ax.add_geometries(pr.geometry, crs=carto.ALBERS, facecolor="none", edgecolor=INK,
+                          linewidth=0.6, zorder=3)
+        ax.set_title(f"{lab}\n(n = {int(d['polygons_usable'].sum()):,} polygons)", loc="left",
+                     fontsize=8.5)
+        carto.gridlines(ax, np.arange(-53, -48, 2), np.arange(-26, -21, 1), left=(i == 0),
+                        size=8)
         for s in ax.spines.values():
-            s.set_visible(False)
-    cb = fig.colorbar(sc, ax=axs, shrink=0.75, pad=0.01)
-    cb.set_label("Usable polygons per 10 km cell (W = 150 m)", color=INK)
+            s.set_edgecolor(INK2)
+            s.set_linewidth(0.6)
+    carto.north_arrow(axs[2], 0.9, 0.70, size=0.13, fontsize=7)
+    carto.scale_bar(axs[0], 0.06, 0.05, 200, segments=4, labels=[0, 100, 200], fontsize=8)
+    cax = fig.add_axes([0.925, 0.22, 0.012, 0.54])
+    cb = fig.colorbar(im, cax=cax)
+    cb.set_label("Usable polygons per\n10 km cell (W = 150 m)", color=INK, fontsize=8)
+    cb.ax.tick_params(labelsize=8)
     cb.outline.set_visible(False)
-    save(fig, "fig02_coverage", out)
+    save(fig, "fig03_coverage", out)
 
 
 def fig_profiles(src, out, window=300):
@@ -110,7 +135,7 @@ def fig_profiles(src, out, window=300):
     fig.text(0.01, -0.03, f"Ribbons: 95 % CI (crossed polygon × scene bootstrap). Dotted: breakpoint "
              f"DEP. Reference band ≥ {window} m.", color=INK2, fontsize=7)
     fig.tight_layout()
-    save(fig, "fig03_profiles", out)
+    save(fig, "fig04_profiles", out)
 
 
 def fig_multiscale(src, out):
@@ -136,7 +161,7 @@ def fig_multiscale(src, out):
                 ax.set_ylabel("DET (°C)")
     year_legend(fig)
     fig.tight_layout()
-    save(fig, "fig04_multiscale", out)
+    save(fig, "fig05_multiscale", out)
 
 
 def _matrix(df, value, classes):
@@ -175,7 +200,7 @@ def fig_dtec(src, out):
     cb.outline.set_visible(False)
     fig.text(0.01, -0.06, "×: 95 % CI includes 0. '·': fewer than 10 interfaces (not estimated). "
              "Diagonal: no interface. Values and CIs: Table S-DTEC.", color=INK2, fontsize=7)
-    save(fig, "fig05_dtec", out)
+    save(fig, "fig06_dtec", out)
 
 
 def fig_asymmetry(src, out):
@@ -206,7 +231,7 @@ def fig_asymmetry(src, out):
     cb.outline.set_visible(False)
     fig.text(0.01, -0.06, "Upper triangle only (the lower one is the same value with opposite sign). "
              "×: 95 % CI includes 0. Read with both directional DTEC values.", color=INK2, fontsize=7)
-    save(fig, "fig06_asymmetry", out)
+    save(fig, "fig07_asymmetry", out)
 
 
 def fig_asymmetry_interior(src, out):

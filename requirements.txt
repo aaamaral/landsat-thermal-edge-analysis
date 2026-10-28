@@ -15,3 +15,5 @@ pyogrio==0.11.1
 joblib==1.4.2
 matplotlib==3.10.8
 earthengine-api==1.5.3
+cartopy==0.25.0
+pyshp==3.0.3
