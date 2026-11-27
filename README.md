@@ -10,7 +10,7 @@ It computes three descriptors of the observed edge pattern:
 
 - **DET**, edge thermal difference: the TST of the 0–30 m ring inside a polygon minus the polygon's
   own interior reference band in the same scene;
-- **DEP**, edge effect depth: the transition breakpoint of the TST-contrast profile with distance
+- **DEP**, thermal transition depth: the transition breakpoint of the TST-contrast profile with distance
   from the boundary (linear–plateau fit), i.e. the end of the steep near-edge regime, not the
   distance at which the contrast vanishes;
 - **DTEC**, directional thermal edge contrast: the edge contrast of a class computed separately for
@@ -86,6 +86,7 @@ revision/09_figures/           figures
     fig_results.py             Figures 3-7 and S2 (Figure 3: spatial coverage map)
     fig_conceptual.py          Figure 1;  fig_spatial_examples.py: Figure S3
 revision/10_tables/            supplementary tables
+revision/11_zenodo/            export, verification and upload of the aggregated derived dataset
 tests/test_synthetic.py        minimal tests on synthetic data
 ```
 
@@ -178,6 +179,7 @@ tens of GB of disk.
 | 7. Estimates, sensitivity analyses, inference and models | `bash revision/08_statistics/rerun_all.sh` (runs the scripts below in order) | `revision/outputs/full/*.csv` | **heavy** (local; reads the whole database, 1,000 bootstrap replicates) |
 | 8. Figures | `python revision/09_figures/fig_conceptual.py`, `fig_study_area.py`, `fig_results.py`, `fig_spatial_examples.py` | `revision/outputs/figures/` | `fig_spatial_examples.py` uses **EE** for one scene; the map figures need the IBGE file (see [Map figures](#map-figures-figures-2-and-3)) |
 | 9. Supplementary tables | `python revision/10_tables/supplementary_tables.py` | `revision/outputs/tables/` | light |
+| 10. Aggregated derived dataset (optional) | `python revision/11_zenodo/export_derived_data.py --with-polygon-ring`, then `python revision/data/zenodo_deposit/verify_deposit.py revision/data/zenodo_deposit` | `revision/data/zenodo_deposit/` (scene × polygon contrasts, DTEC, scene × polygon × ring means, polygon attributes, results; see `revision/11_zenodo/DATASET_README.md`) | light (minutes); the deposited copy of this dataset lets the estimates be recomputed without steps 1–7 |
 
 `revision/02_edge_aggregation/rebuild_year_c10.sh <year>` runs steps 1–4 and the covariates for one
 year. `rerun_all.sh` runs `landscape_metrics_revision.py` for 2002 only, because that was the year

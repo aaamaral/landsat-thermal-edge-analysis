@@ -1,0 +1,30 @@
+{
+  "title": "Aggregated derived data: edge-associated thermal patterns in Landsat surface temperature across land-cover classes in Paraná, Brazil (1985, 2002, 2024)",
+  "upload_type": "dataset",
+  "description": "Aggregated derived data accompanying the article <i>Edge-associated thermal patterns in Landsat surface temperature: magnitude, transition depth and directional contrasts across land-cover classes in Paraná, southern Brazil</i> (Remote Sensing Applications: Society and Environment). Scene × polygon edge-minus-reference contrasts for the 150 m and 300 m windows, scene × polygon × neighbouring-class directional contrasts (DTEC), scene × polygon × distance-ring means for all thermal supports (30 m, 60–120 m box filters, PSF) and NDVI/NDMI, polygon attributes and the class-level results behind the figures and tables, for three Landsat year–sensor conditions (1985 L5 TM, 2002 L7 ETM+, 2024 L8/9 TIRS; 672 scenes) and MapBiomas Collection 10.1 land cover. The files reproduce the published point estimates and allow the crossed polygon × scene bootstrap to be recomputed without the Earth Engine extraction; verify_deposit.py checks this. The full scene × polygon × neighbouring class × distance-ring database is not included and can be rebuilt from public inputs with the code. See README.md.",
+  "creators": [
+    {
+      "name": "do Amaral, Adriano Araújo",
+      "affiliation": "Universidade Estadual do Centro-Oeste (UNICENTRO), Graduate Program in Geography, Guarapuava, Paraná, Brazil",
+      "orcid": "0009-0001-9427-447X"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "keywords": [
+    "Landsat",
+    "land surface temperature",
+    "edge effects",
+    "thermal transition depth",
+    "MapBiomas",
+    "Paraná"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/aaamaral/landsat-thermal-edge-analysis",
+      "resource_type": "software"
+    }
+  ],
+  "language": "eng"
+}

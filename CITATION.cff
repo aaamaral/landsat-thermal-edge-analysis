@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the article and this software."
+title: "landsat-thermal-edge-analysis"
+type: software
+authors:
+  - family-names: "do Amaral"
+    given-names: "Adriano Araújo"
+    affiliation: "Universidade Estadual do Centro-Oeste (UNICENTRO), Guarapuava, Paraná, Brazil"
+    orcid: "https://orcid.org/0009-0001-9427-447X"
+license: MIT
+repository-code: "https://github.com/aaamaral/landsat-thermal-edge-analysis"
+keywords:
+  - Landsat
+  - land surface temperature
+  - edge effects
+  - thermal transition depth
+  - MapBiomas

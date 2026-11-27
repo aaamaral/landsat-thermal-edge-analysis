@@ -1,0 +1,22 @@
+{
+  "title": "landsat-thermal-edge-analysis: code for edge-associated thermal patterns in Landsat surface temperature (Paraná, Brazil)",
+  "upload_type": "software",
+  "description": "Processing and analysis code for the article <i>Edge-associated thermal patterns in Landsat surface temperature: magnitude, transition depth and directional contrasts across land-cover classes in Paraná, southern Brazil</i> (Remote Sensing Applications: Society and Environment). The code builds the scene × polygon × neighbouring class × distance-ring database from public inputs (Landsat Collection 2 Level 2, MapBiomas Collection 10.1, ERA5-Land, SRTM) and computes the edge thermal difference (DET), the thermal transition depth (DEP) and the directional thermal edge contrast (DTEC) with crossed polygon × scene and spatial-block bootstrap uncertainty.",
+  "creators": [
+    {
+      "name": "do Amaral, Adriano Araújo",
+      "affiliation": "Universidade Estadual do Centro-Oeste (UNICENTRO), Graduate Program in Geography, Guarapuava, Paraná, Brazil",
+      "orcid": "0009-0001-9427-447X"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "Landsat",
+    "land surface temperature",
+    "edge effects",
+    "thermal transition depth",
+    "MapBiomas",
+    "Paraná"
+  ],
+  "language": "eng"
+}
