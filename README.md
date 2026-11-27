@@ -20,8 +20,11 @@ All three are contrasts in the TST product. None of them is a measurement of hea
 Uncertainty comes from a crossed polygon × scene bootstrap, a spatial block bootstrap and two-way
 cluster-robust regression.
 
-The repository holds code, documentation and the Landsat scene list only. No raster, no derived
-table and no aggregated database is distributed (see [Data availability](#data-availability)).
+The repository holds code, documentation and the Landsat scene list only. The aggregated derived
+data are archived separately on Zenodo (see [Data availability](#data-availability)).
+
+- Code (this repository, v1.0.0): https://doi.org/10.5281/zenodo.24593005
+- Aggregated derived dataset: https://doi.org/10.5281/zenodo.24593420
 
 ## Article
 
@@ -299,14 +302,19 @@ scene list, the error messages for missing settings, and the absence of local pa
 
 All input data come from public sources: Landsat Collection 2 Level 2 (obtained through Google
 Earth Engine), MapBiomas Collection 10.1, ERA5-Land and SRTM, plus a state boundary of Paraná
-supplied by the user. The derived data used in the analyses (class rasters on the reference grid,
-the scene × polygon × neighbouring class × ring database, intermediate tables and result tables)
-are not distributed. They can be rebuilt from the public sources with the code in this repository,
-following the workflow above.
+supplied by the user. An aggregated derived dataset (scene × polygon contrasts, DTEC by
+neighbouring class, scene × polygon × ring means, polygon attributes and result tables) is archived
+on Zenodo, https://doi.org/10.5281/zenodo.24593420 (CC BY 4.0); with it the published estimates and
+bootstrap intervals can be recomputed without steps 1–7 (see step 10 and
+`revision/11_zenodo/DATASET_README.md`). The class rasters on the reference grid and the full
+scene × polygon × neighbouring class × ring database are not distributed; they can be rebuilt from
+the public sources with the code in this repository, following the workflow above.
 
 ## Citation
 
-If you use this code, please cite the article above.
+If you use this code, please cite the article above and the archived release,
+https://doi.org/10.5281/zenodo.24593005 (all versions: https://doi.org/10.5281/zenodo.24593004).
+If you use the derived data, please cite https://doi.org/10.5281/zenodo.24593420.
 
 Repository URL: https://github.com/aaamaral/landsat-thermal-edge-analysis
 

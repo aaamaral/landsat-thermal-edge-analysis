@@ -22,6 +22,12 @@
   "related_identifiers": [
     {
       "relation": "isSupplementTo",
+      "identifier": "10.5281/zenodo.24593005",
+      "scheme": "doi",
+      "resource_type": "software"
+    },
+    {
+      "relation": "isSupplementTo",
       "identifier": "https://github.com/aaamaral/landsat-thermal-edge-analysis",
       "resource_type": "software"
     }

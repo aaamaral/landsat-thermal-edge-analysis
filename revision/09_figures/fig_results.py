@@ -164,6 +164,19 @@ def fig_multiscale(src, out):
     save(fig, "fig05_multiscale", out)
 
 
+def _glyph(ax, i, k, v, norm, ci_excludes_zero):
+    """Cell glyph that keeps the heatmap readable in greyscale print, where the two ends of the
+    diverging scale have similar lightness: '+'/'−' give the sign where the 95 % CI excludes 0,
+    '×' marks a CI that includes 0. White glyph on dark cells."""
+    dark = abs(float(norm(v)) - 0.5) > 0.33
+    if ci_excludes_zero:
+        ax.text(k, i, "+" if v > 0 else "−", ha="center", va="center", fontsize=6.5,
+                fontweight="bold", color="white" if dark else INK)
+    else:
+        ax.text(k, i, "×", ha="center", va="center", fontsize=5.5,
+                color="white" if dark else INK2)
+
+
 def _matrix(df, value, classes):
     m = df.pivot_table(index="focal_class", columns="nb_class", values=value)
     return m.reindex(index=classes, columns=classes)
@@ -187,8 +200,8 @@ def fig_dtec(src, out):
                     continue
                 if not np.isfinite(v):
                     ax.text(k, i, "·", ha="center", va="center", color=INK2, fontsize=6)
-                elif not (lo.iat[i, k] > 0 or hi.iat[i, k] < 0):
-                    ax.text(k, i, "×", ha="center", va="center", color=INK2, fontsize=5.5)
+                else:
+                    _glyph(ax, i, k, v, norm, lo.iat[i, k] > 0 or hi.iat[i, k] < 0)
         ax.set_xticks(range(len(classes)), [SHORT[c] for c in classes], rotation=90, fontsize=6.5)
         ax.set_yticks(range(len(classes)), [SHORT[c] for c in classes], fontsize=6.5)
         ax.set_title(lab, loc="left")
@@ -198,8 +211,9 @@ def fig_dtec(src, out):
     cb = fig.colorbar(im, ax=axs, shrink=0.8, pad=0.01)
     cb.set_label("DTEC(A ← B) (°C)", color=INK)
     cb.outline.set_visible(False)
-    fig.text(0.01, -0.06, "×: 95 % CI includes 0. '·': fewer than 10 interfaces (not estimated). "
-             "Diagonal: no interface. Values and CIs: Table S-DTEC.", color=INK2, fontsize=7)
+    fig.text(0.01, -0.06, "+ / −: sign of DTEC where the 95 % CI excludes 0; ×: 95 % CI includes 0. "
+             "'·': fewer than 10 interfaces (not estimated).\nDiagonal: no interface. "
+             "Values and CIs: Table S6.", color=INK2, fontsize=7)
     save(fig, "fig06_dtec", out)
 
 
@@ -218,8 +232,8 @@ def fig_asymmetry(src, out):
             m[i, k] = r["asymmetry"]
             sig[i, k] = r["asym_lo"] > 0 or r["asym_hi"] < 0
         im = ax.imshow(m, cmap=DIV, norm=norm)
-        for i, k in zip(*np.nonzero(np.isfinite(m) & ~sig)):
-            ax.text(k, i, "×", ha="center", va="center", color=INK2, fontsize=5.5)
+        for i, k in zip(*np.nonzero(np.isfinite(m))):
+            _glyph(ax, i, k, m[i, k], norm, sig[i, k])
         ax.set_xticks(range(len(classes)), [SHORT[c] for c in classes], rotation=90, fontsize=6.5)
         ax.set_yticks(range(len(classes)), [SHORT[c] for c in classes], fontsize=6.5)
         ax.set_title(lab, loc="left")
@@ -230,7 +244,8 @@ def fig_asymmetry(src, out):
     cb.set_label("DTEC(A ← B) − DTEC(B ← A) (°C)", color=INK)
     cb.outline.set_visible(False)
     fig.text(0.01, -0.06, "Upper triangle only (the lower one is the same value with opposite sign). "
-             "×: 95 % CI includes 0. Read with both directional DTEC values.", color=INK2, fontsize=7)
+             "+ / −: sign where the 95 % CI excludes 0;\n×: 95 % CI includes 0. "
+             "Read with both directional DTEC values.", color=INK2, fontsize=7)
     save(fig, "fig07_asymmetry", out)
 
 
